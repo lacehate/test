@@ -22,6 +22,8 @@ class NewsController extends Controller
     }
 
     /**
+     * List all by category.
+     *
      * @param NewsListRequest $request
      * @return AnonymousResourceCollection
      */
@@ -31,6 +33,8 @@ class NewsController extends Controller
     }
 
     /**
+     * List most viewed limit 10.
+     *
      * @param NewsListRequest $request
      * @return AnonymousResourceCollection
      */
@@ -60,7 +64,7 @@ class NewsController extends Controller
     {
         $newsCreatedCard = $this->newsService->store($request->getDto());
         if($newsCreatedCard === 'already exists'){
-            return response()->json(['status' => 'failed', 'data' => $newsCreatedCard], 200);
+            return response()->json(['status' => 'failed', 'data' => $newsCreatedCard], 500);
         }else{
             return response()->json(['status' => 'success', 'data' => $newsCreatedCard], 200);
         }
@@ -74,12 +78,16 @@ class NewsController extends Controller
      */
     public function update(NewsRequest $request, $slug): JsonResponse
     {
-        $this->newsService->update($request->getDto(), $slug);
-        return response()->json(['status' => 'successfully updated'], 200);
+        $newsUpdatedCard = $this->newsService->update($request->getDto(), $slug);
+        if($newsUpdatedCard === 'non existing record'){
+            return response()->json(['status' => 'failed', 'data' => $newsUpdatedCard], 500);
+        }else{
+            return response()->json(['status' => 'success', 'data' => $newsUpdatedCard], 200);
+        }
     }
 
     /**
-     * Update the specified resource.
+     * Delete the specified resource.
      *
      * @param NewsRequest $request
      * @return JsonResponse

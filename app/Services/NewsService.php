@@ -21,7 +21,7 @@ final class NewsService
     {
         return NewsCategory::with(
             [
-                'news' => function ($query){$query->whereNotNull('news.published_at')->orderByDesc('news.count');
+                'news' => function ($query){$query->whereNotNull('news.published_at')->orderByDesc('news.published_at');
                 },
             ])
             ->get();
@@ -105,9 +105,9 @@ final class NewsService
 
     /**
      * @param NewsDto $dto
-     * @return JsonResponse
+     * @return string
      */
-    public function update(NewsDto $dto, $slug): JsonResponse
+    public function update(NewsDto $dto, $slug): string
     {
         $newsCardExist = News::where('slug', $slug)->first();
         if($newsCardExist){
@@ -121,10 +121,10 @@ final class NewsService
                     'content' => $dto->getContent(),
                     'published_at' =>  $dto->getPublishedAt(),
                 ]);
-            return response()->json(['status' => 'successfully update'], 200);
+            return 'successfully updated';
         }
         else{
-            return response()->json(['status' => 'non existing record'], 200);
+            return 'non existing record';
         }
     }
 
