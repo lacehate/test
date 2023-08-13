@@ -16,9 +16,10 @@ use App\Http\Controllers\NewsController;
 */
 
 Route::post('/login', [UserController::class, 'login']);
+
+Route::get('/news/top', [NewsController::class, 'mostViewed']);
 Route::get('/news', [NewsController::class, 'index']);
 Route::get('/news/{slug}', [NewsController::class, 'show']);
-Route::get('/news-top', [NewsController::class, 'mostViewed']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/logout', [UserController::class, 'logout']);
