@@ -59,12 +59,8 @@ class NewsController extends Controller
      */
     public function store(NewsRequest $request)
     {
-        $newsCreatedCard = $this->newsService->store($request->getDto());
-        if($newsCreatedCard === 'already exists'){
-            return response()->json(['status' => 'failed', 'data' => $newsCreatedCard], 500);
-        }else{
-            return response()->json(['status' => 'success', 'data' => $newsCreatedCard], 200);
-        }
+        $dto = $request->getDto();
+        return response()->json($this->newsService->store($dto));
     }
 
     /**
@@ -75,12 +71,8 @@ class NewsController extends Controller
      */
     public function update(NewsRequest $request, $slug): JsonResponse
     {
-        $newsUpdatedCard = $this->newsService->update($request->getDto(), $slug);
-        if($newsUpdatedCard === 'non existing record'){
-            return response()->json(['status' => 'failed', 'data' => $newsUpdatedCard], 500);
-        }else{
-            return response()->json(['status' => 'success', 'data' => $newsUpdatedCard], 200);
-        }
+        $dto = $request->getDto();
+        return response()->json($this->newsService->update($dto, $slug));
     }
 
     /**
@@ -92,6 +84,7 @@ class NewsController extends Controller
     public function destroy(NewsDestroyRequest $request): JsonResponse
     {
         $requestData = $request->validated();
-        return $this->newsService->delete($requestData['slug']);
+        return response()->json($this->newsService->delete($requestData['slug']));
+        ;
     }
 }

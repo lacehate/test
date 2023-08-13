@@ -3,11 +3,10 @@
 namespace App\Services;
 
 use App\Models\News;
+use App\Jobs\StoreDataJob;
+use App\Jobs\UpdateDataJob;
 use App\Models\NewsCategory;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Database\Eloquent\Model;
 use App\DataTransferObjects\News\NewsDto;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use App\DataTransferObjects\News\NewsListDto;
 
@@ -57,7 +56,7 @@ final class NewsService
         $newsCardCount = News::where('slug', $slug)->firstOrFail();
         $newsCardCount->increment('count');
 
-        $newsCard = News::select(
+        return News::select(
             [
                 'news.title',
                 'news.content',
@@ -72,76 +71,56 @@ final class NewsService
             ->where('news.slug', $slug)
             ->whereNotNull('news.published_at')
             ->firstOrFail();
-
-        return $newsCard;
     }
 
     /**
      * @param NewsDto $dto
-     * @return Builder|Model|String
+     * @return String|Array
      */
-    public function store(NewsDto $dto): Builder|Model|String
+    public function store(NewsDto $dto): String|array
     {
         $newsCardExist = News::where('slug', $dto->getSlug())
                             ->orWhere('title', $dto->getTitle())
                             ->first();
-
         if($newsCardExist){
-            return 'already exists';
+            return ['status' => 'already exists', 'data'=> $newsCardExist];
         }
         else{
-            return News::query()
-                ->create(
-            [
-                'title' => $dto->getTitle(),
-                'slug' => $dto->getSlug(),
-                'preview' => $dto->getPreview(),
-                'news_category_id' => $dto->getNewsCategoryId(),
-                'content' => $dto->getContent(),
-                'published_at' =>  $dto->getPublishedAt(),
-            ]);
+            StoreDataJob::dispatch($dto);
+            return ['status' => 'data processing'];
         }
     }
 
     /**
      * @param NewsDto $dto
-     * @return string
+     * @return String|Array
      */
-    public function update(NewsDto $dto, $slug): string
+    public function update(NewsDto $dto, $slug): String|array
     {
-        $newsCardExist = News::where('slug', $slug)->first();
+        $newsCardExist = News::where('slug', $slug)
+                            ->first();
         if($newsCardExist){
-            News::where('slug', $slug)
-                ->update(
-                [
-                    'title' =>  $dto->getTitle(),
-                    'slug' => $dto->getSlug(),
-                    'preview' => $dto->getPreview(),
-                    'news_category_id' => $dto->getNewsCategoryId(),
-                    'content' => $dto->getContent(),
-                    'published_at' =>  $dto->getPublishedAt(),
-                ]);
-            return 'successfully updated';
+            UpdateDataJob::dispatch($dto, $slug);
+            return ['status' => 'successfully updated'];
         }
         else{
-            return 'non existing record';
+            return ['status' => 'non existing record'];
         }
     }
 
     /**
      * @param string $slug
-     * @return JsonResponse
-
+     * @return String|Array
      */
-    public function delete(string $slug): JsonResponse
+    public function delete(string $slug): String|Array
     {
         $newsCardExist = News::where('slug', $slug)->first();
         if($newsCardExist){
             News::destroy($newsCardExist->id);
-            return response()->json(['status' => 'successfully deleted'], 200);
+            return ['status' => 'successfully deleted'];
         }
         else{
-            return response()->json(['status' => 'non existing record'], 200);
+            return ['status' => 'non existing record'];
         }
     }
 }
