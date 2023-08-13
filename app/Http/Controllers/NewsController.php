@@ -6,7 +6,6 @@ use App\Services\NewsService;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\News\NewsRequest;
 use App\Http\Resources\News\NewsResource;
-use App\Http\Requests\News\NewsListRequest;
 use App\Http\Requests\News\NewsShowRequest;
 use App\Http\Requests\News\NewsDestroyRequest;
 use App\Http\Resources\News\NewsCategoryResource;
@@ -24,7 +23,6 @@ class NewsController extends Controller
     /**
      * List all by category.
      *
-     * @param NewsListRequest $request
      * @return AnonymousResourceCollection
      */
     public function index(): AnonymousResourceCollection
@@ -35,7 +33,6 @@ class NewsController extends Controller
     /**
      * List most viewed limit 10.
      *
-     * @param NewsListRequest $request
      * @return AnonymousResourceCollection
      */
     public function mostViewed(): AnonymousResourceCollection
@@ -89,7 +86,7 @@ class NewsController extends Controller
     /**
      * Delete the specified resource.
      *
-     * @param NewsRequest $request
+     * @param NewsDestroyRequest $request
      * @return JsonResponse
      */
     public function destroy(NewsDestroyRequest $request): JsonResponse
